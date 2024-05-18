@@ -1,3 +1,7 @@
+/**
+ * @authors Mathias Durat <mathias.durat@etu.umontpellier.fr>, Tristan-Mihai Radulescu <tristan-mihai.radulescu@etu.umontpellier.fr>
+ * @forked_from https://github.com/webrtc-rs/sfu (Rusty Rain <y@ngr.tc>)
+ */
 use std::{
     collections::HashMap,
     net::{IpAddr, UdpSocket},
@@ -17,10 +21,6 @@ use crate::transport::sync_run;
 
 mod signalling;
 mod transport;
-/**
- * @authors Mathias Durat <mathias.durat@etu.umontpellier.fr>, Tristan-Mihai Radulescu <tristan-mihai.radulescu@etu.umontpellier.fr>
- * @forked_from https://github.com/webrtc-rs/sfu (Rusty Rain <y@ngr.tc>)
- */
 
 #[derive(Default, Debug, Clone, Copy, clap::ValueEnum)]
 enum Level {

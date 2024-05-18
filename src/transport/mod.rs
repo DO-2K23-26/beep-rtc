@@ -1,4 +1,4 @@
-use bytes::{Bytes, BytesMut};
+use bytes::BytesMut;
 use log::error;
 use retty::channel::{InboundPipeline, Pipeline};
 use retty::transport::{TaggedBytesMut, TransportContext};
@@ -10,7 +10,7 @@ use std::cell::RefCell;
 use std::io::ErrorKind;
 use std::net::{SocketAddr, UdpSocket};
 use std::rc::Rc;
-use std::sync::mpsc::{Receiver, SyncSender};
+use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::vec;
