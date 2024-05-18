@@ -10,10 +10,13 @@ use clap::{command, Parser};
 use dtls::extension::extension_use_srtp::SrtpProtectionProfile;
 use log::info;
 use sfu::RTCCertificate;
-use signalling::{sync_run, web_server};
+use signalling::web_server;
 use wg::WaitGroup;
 
+use crate::transport::sync_run;
+
 mod signalling;
+mod transport;
 /**
  * @authors Mathias Durat <mathias.durat@etu.umontpellier.fr>, Tristan-Mihai Radulescu <tristan-mihai.radulescu@etu.umontpellier.fr>
  * @forked_from https://github.com/webrtc-rs/sfu (Rusty Rain <y@ngr.tc>)

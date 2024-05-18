@@ -11,7 +11,7 @@ use actix_web::{
 use bytes::Bytes;
 use tracing::{error, info};
 
-use crate::signalling::{SignalingMessage, SignalingProtocolMessage};
+use crate::transport::handlers::{SignalingMessage, SignalingProtocolMessage};
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct RTCSessionDescriptionSerializable {

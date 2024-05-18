@@ -4,9 +4,10 @@ use actix_cors::Cors;
 use actix_web::{web::Data, App, HttpServer};
 use tracing::info;
 
-use crate::signalling::signaling_controller::{handle_offer, health, leave};
-
-use super::SignalingMessage;
+use crate::{
+    signalling::signaling_controller::{handle_offer, health, leave},
+    transport::handlers::SignalingMessage,
+};
 
 pub async fn start(
     addr: &str,
