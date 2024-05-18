@@ -18,7 +18,6 @@ mod signalling;
  * @authors Mathias Durat <mathias.durat@etu.umontpellier.fr>, Tristan-Mihai Radulescu <tristan-mihai.radulescu@etu.umontpellier.fr>
  * @forked_from https://github.com/webrtc-rs/sfu (Rusty Rain <y@ngr.tc>)
  */
-mod util;
 
 #[derive(Default, Debug, Clone, Copy, clap::ValueEnum)]
 enum Level {

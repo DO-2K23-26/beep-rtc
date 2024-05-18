@@ -102,9 +102,10 @@ pub async fn handle_offer(
             endpoint_id,
             offer_sdp,
         } => {
+            let offer_sdp_str = std::str::from_utf8(&offer_sdp).unwrap();
             error!(
-                "Received offer for session {} endpoint {} while expecting answer",
-                session_id, endpoint_id
+                "Received offer for session {} endpoint {} while expecting answer with sdp {}",
+                session_id, endpoint_id, offer_sdp_str
             );
             return HttpResponse::InternalServerError()
                 .body("Received offer for session endpoint while expecting answer");
