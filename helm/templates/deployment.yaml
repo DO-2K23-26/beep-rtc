@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "beep-rtc.fullname" . }}
+  labels:
+    {{- include "beep-rtc.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "beep-rtc.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "beep-rtc.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["./target/release/beep-sfu"]
+          args: ["-d", "--level", "info", "--media-port-min", "{{.Values.image.portUDPmin}}", "--media-port-max", "{{.Values.image.portUDPmax}}"]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.image.portHTTP }}
+              protocol: TCP
+            {{- range .Values.ports }}
+            - name: "port-{{ . }}"
+              containerPort: {{ . }}
+              protocol: UDP
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

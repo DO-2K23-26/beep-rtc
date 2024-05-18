@@ -1,0 +1,6 @@
+apiVersion: v2
+name: beep-rtc
+description: the frontend of beep for the file group
+type: application
+version: 0.0.0
+appVersion: "1.0.0"
