@@ -75,49 +75,17 @@ struct Cli {
 async fn main() -> std::io::Result<()> {
     tracing_subscriber::fmt::init();
     let cli = Cli::parse();
-    // let host_addr = if cli.host == "127.0.0.1" && !cli.force_local_loop {
-    //     let addr = match util::net::select_host_address() {
-    //         Ok(addr) => addr,
-    //         Err(e) => {
-    //             tracing::error!("Failed to select host address: {:?}", e);
-    //             return Err(std::io::Error::new(
-    //                 std::io::ErrorKind::Other,
-    //                 "Failed to select host address",
-    //             ));
-    //         }
-    //     };
-    //     return Ok(addr);
-    // } else {
-    //     IpAddr::from_str(&cli.host).map_err(|e| {
-    //         tracing::error!("Failed to parse host address: {:?}", e);
-    //         std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
-    //     })?
-    // };
 
-    let host_addr: IpAddr;
-
-    if cli.host == "127.0.0.1" && !cli.force_local_loop {
-        host_addr = match util::net::select_host_address() {
-            Ok(addr) => addr,
-            Err(e) => {
-                tracing::error!("Failed to select host address: {:?}", e);
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "Failed to select host address",
-                ));
-            }
-        };
-    } else {
-        host_addr = IpAddr::from_str(&cli.host).map_err(|e| {
-            tracing::error!("Failed to parse host address: {:?}", e);
-            std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
-        })?;
-    }
+    let host_addr: IpAddr = IpAddr::from_str("127.0.0.1").map_err(|e| {
+        tracing::error!("Failed to parse host address: {:?}", e);
+        std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
+    })?;
 
     let media_ports: Vec<u16> = (cli.media_port_min..=cli.media_port_max).collect();
 
     let (stop_tx, stop_rx) = crossbeam_channel::bounded::<()>(1);
 
+    // ice_port -> worker
     let mut media_port_thread_map = HashMap::new();
 
     let key_pair = rcgen::KeyPair::generate(&rcgen::PKCS_ECDSA_P256_SHA256).map_err(|e| {
