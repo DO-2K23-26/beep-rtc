@@ -12,8 +12,28 @@ pub async fn start(
     addr: &str,
     port: &str,
     media_port_thread_map: HashMap<u16, SyncSender<SignalingMessage>>,
+    env: String,
 ) -> std::io::Result<()> {
     let addr = format!("{}:{}", addr, port);
+
+    if env == "prod" {
+        info!("Running in prod mode");
+        return HttpServer::new(move || {
+            let cors = Cors::default()
+                .allow_any_origin()
+                .allow_any_method()
+                .allow_any_header()
+                .max_age(3600);
+
+            App::new()
+                .wrap(cors)
+                .app_data(Data::new(media_port_thread_map.clone()))
+                .service(handle_offer)
+                .service(leave)
+        })
+        .run()
+        .await;
+    }
     let mut builder =
         openssl::ssl::SslAcceptor::mozilla_intermediate(openssl::ssl::SslMethod::tls()).unwrap();
     builder

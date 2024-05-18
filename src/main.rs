@@ -43,10 +43,10 @@ impl From<Level> for tracing::Level {
 }
 
 #[derive(Parser)]
-#[command(name = "SFU Server")]
+#[command(name = "Beep SFU Server")]
 #[command(author = "Tristan-Mihai Radulescu <tristan-mihai.radulescu@etu.umontpellier.fr>")]
 #[command(version = "0.1.0")]
-#[command(about = "An example of SFU Server", long_about = None)]
+#[command(about = "A SFU Server", long_about = None)]
 struct Cli {
     #[arg(long, default_value_t = false)]
     dev: bool,
@@ -58,6 +58,9 @@ struct Cli {
     media_port_min: u16,
     #[arg(long, default_value_t = 3479)]
     media_port_max: u16,
+
+    #[arg(short, long, default_value_t = format!("prod"))]
+    env: String,
 
     #[arg(short, long)]
     force_local_loop: bool,
@@ -188,6 +191,7 @@ async fn main() -> std::io::Result<()> {
         &host_addr.to_string(),
         &signal_port.to_string(),
         media_port_thread_map.clone(),
+        cli.env,
     )
     .await?;
 
