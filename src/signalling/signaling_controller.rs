@@ -4,7 +4,7 @@ use std::{
 };
 
 use actix_web::{
-    post,
+    get, post,
     web::{self, Data},
     HttpResponse, Responder,
 };
@@ -18,6 +18,11 @@ struct RTCSessionDescriptionSerializable {
     sdp: String,
     #[serde(rename = "type")]
     sdp_type: String,
+}
+
+#[get("/health")]
+pub async fn health() -> impl Responder {
+    HttpResponse::Ok().body("OK")
 }
 
 #[post("/offer/{session}/{endpoint}")]
