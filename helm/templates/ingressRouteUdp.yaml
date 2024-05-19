@@ -1,14 +1,12 @@
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRouteUDP
-metadata:
-  name: {{ printf "%s-ingress-udp" (include "beep-rtc.fullname" .) }}
-  namespace: {{ .Release.Namespace }}
-spec:
-  entryPoints:
-    {{- range .Values.ports }}
-    - "port-{{ . }}"
-    {{- end }}
-  routes:
-    - services:
-        - name: {{ printf "%s-service" (include "beep-rtc.fullname" .) }}
-          port: 3000
+#apiVersion: traefik.containo.us/v1alpha1
+#kind: IngressRouteUDP
+#metadata:
+#  name: {{ printf "%s-ingress-udp" (include "beep-rtc.fullname" .) }}
+#  namespace: {{ .Release.Namespace }}
+#spec:
+#  entryPoints:
+#    - streaming
+#  routes:
+#    - services:
+#      - name: {{ printf "%s-service" (include "beep-rtc.fullname" $) }}
+#        port: 30000
