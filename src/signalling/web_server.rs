@@ -1,13 +1,15 @@
 use std::{collections::HashMap, sync::mpsc::SyncSender};
 
 use actix_cors::Cors;
-use actix_web::{web::Data, App, HttpServer};
+use actix_web::{web::Data, App, HttpServer, HttpResponse};
 use tracing::info;
 
 use crate::{
     signalling::signaling_controller::{handle_offer, health, leave},
     transport::handlers::SignalingMessage,
+    middleware::verify_jwt::SayHi,
 };
+use crate::middleware::verify_jwt::verify_token;
 
 pub async fn start(
     addr: &str,
@@ -28,6 +30,20 @@ pub async fn start(
 
             App::new()
                 .wrap(cors)
+                .wrap_fn(|req, srv| {
+                    if verify_token(req) {
+                        let fut = srv.call(req.clone());
+                        Box::pin(async {
+                            let res = fut.await?;
+                            Ok(res)
+                        })
+                    } else {
+                        Box::pin(async {
+                            let res = HttpResponse::Unauthorized().body("Unauthorized access");
+                            Ok(req.clone().into_response(res))
+                        })
+                    }
+                })
                 .app_data(Data::new(media_port_thread_map.clone()))
                 .service(handle_offer)
                 .service(health)
@@ -55,6 +71,7 @@ pub async fn start(
 
             App::new()
                 .wrap(cors)
+                .wrap(SayHi)
                 .app_data(Data::new(media_port_thread_map.clone()))
                 .service(health)
                 .service(handle_offer)

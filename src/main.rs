@@ -21,6 +21,7 @@ use crate::transport::sync_run;
 
 mod signalling;
 mod transport;
+mod middleware;
 
 #[derive(Default, Debug, Clone, Copy, clap::ValueEnum)]
 enum Level {

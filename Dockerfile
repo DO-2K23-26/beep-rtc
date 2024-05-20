@@ -16,4 +16,4 @@ EXPOSE 8080
 EXPOSE 3478-3495/udp
 
 # Command to run the server
-CMD ./target/release/beep-sfu -d --level info
+CMD ./target/release/beep-sfu -d --level info -e dev
