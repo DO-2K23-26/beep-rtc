@@ -21,9 +21,9 @@ use wg::WaitGroup;
 use crate::transport::sync_run;
 
 mod logging;
+mod middleware;
 mod signalling;
 mod transport;
-mod middleware;
 
 #[derive(Default, Debug, Clone, Copy, clap::ValueEnum)]
 enum Level {
@@ -78,7 +78,7 @@ struct Cli {
 async fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
 
-    let guard = logging::init_logger(&cli.env).unwrap(); //better error handling
+    let guard = logging::init_logger(&cli.env).unwrap(); //better error handling needed
     let root = span!(tracing::Level::INFO, "main");
 
     let _enter = root.enter();
@@ -171,7 +171,6 @@ async fn main() -> std::io::Result<()> {
         &host_addr.to_string(),
         &signal_port.to_string(),
         media_port_thread_map.clone(),
-        cli.env,
     )
     .await?;
 
