@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::mpsc::SyncSender};
 use actix_cors::Cors;
 use actix_web::{web::Data, App, HttpServer, HttpResponse};
 use tracing::info;
+use tracing_actix_web::TracingLogger;
 
 use crate::{
     signalling::signaling_controller::{handle_offer, health, leave},

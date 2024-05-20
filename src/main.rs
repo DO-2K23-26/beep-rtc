@@ -15,10 +15,12 @@ use dtls::extension::extension_use_srtp::SrtpProtectionProfile;
 use log::info;
 use sfu::RTCCertificate;
 use signalling::web_server;
+use tracing::span;
 use wg::WaitGroup;
 
 use crate::transport::sync_run;
 
+mod logging;
 mod signalling;
 mod transport;
 mod middleware;
@@ -66,8 +68,6 @@ struct Cli {
     env: String,
 
     #[arg(short, long)]
-    force_local_loop: bool,
-    #[arg(short, long)]
     debug: bool,
     #[arg(short, long, default_value_t = Level::INFO)]
     #[clap(value_enum)]
@@ -76,8 +76,13 @@ struct Cli {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    tracing_subscriber::fmt::init();
     let cli = Cli::parse();
+
+    let guard = logging::init_logger(&cli.env).unwrap(); //better error handling
+    let root = span!(tracing::Level::INFO, "main");
+
+    let _enter = root.enter();
+    tracing::info!("Starting Beep SFU Server");
 
     let host_addr: IpAddr = IpAddr::from_str("127.0.0.1").map_err(|e| {
         tracing::error!("Failed to parse host address: {:?}", e);
@@ -131,6 +136,7 @@ async fn main() -> std::io::Result<()> {
 
     let wait_group = WaitGroup::new();
 
+    info!("Starting media server with {} workers", media_ports.len());
     for port in media_ports {
         let worker = wait_group.add(1);
         let stop_rx = stop_rx.clone();
@@ -146,12 +152,15 @@ async fn main() -> std::io::Result<()> {
 
         std::thread::spawn(move || {
             //write sfu handler here
+            let _span = span!(tracing::Level::INFO, "worker", port = port).entered();
+
             match sync_run(stop_rx, socket, signaling_rx, server_config) {
                 Ok(_) => (),
                 Err(e) => {
                     tracing::error!("Failed to run sfu: {:?}", e);
                 }
             }
+            _span.exit();
             worker.done();
         });
     }
