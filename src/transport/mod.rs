@@ -86,7 +86,7 @@ pub fn sync_run(
     }
     pipeline.transport_inactive();
 
-    println!(
+    info!(
         "media server on {} is gracefully down",
         socket.local_addr()?
     );
