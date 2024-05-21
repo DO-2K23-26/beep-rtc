@@ -34,6 +34,7 @@ sctp = { version = "0.1.1", package = "rtc-sctp" }
 datachannel = { version = "0.1", package = "rtc-datachannel" }
 tracing-actix-web = { version=  "0.7", features = ["opentelemetry_0_22"] }
 tracing = "0.1.40"
+tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
 actix = "0.13.3"
 actix-web = { version = "4.5.1", feature = ["openssl"], features = ["openssl"] }

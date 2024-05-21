@@ -7,6 +7,7 @@ use std::{
 
 use bytes::Bytes;
 use sfu::{RTCSessionDescription, ServerStates};
+use tracing::info;
 
 pub enum SignalingProtocolMessage {
     Ok {
@@ -110,11 +111,9 @@ fn handle_offer_message(
                 ))
             }
         };
-        log::info!(
+        info!(
             "handle_offer_message: {}/{}/{}",
-            session_id,
-            endpoint_id,
-            offer_str,
+            session_id, endpoint_id, offer_str,
         );
         let mut server_states = server_states.borrow_mut();
 
@@ -129,7 +128,7 @@ fn handle_offer_message(
             }
         };
         let answer_str = serde_json::to_string(&answer)?;
-        log::info!("generate answer sdp: {}", answer_str);
+        info!("generate answer sdp: {}", answer_str);
         Ok(Bytes::from(answer_str))
     };
 
@@ -168,7 +167,7 @@ fn handle_leave_message(
     response_tx: SyncSender<SignalingProtocolMessage>,
 ) -> std::io::Result<()> {
     let try_handle = || -> std::io::Result<()> {
-        log::info!("handle_leave_message: {}/{}", session_id, endpoint_id,);
+        info!("handle_leave_message: {}/{}", session_id, endpoint_id,);
         Ok(())
     };
 

@@ -1,13 +1,12 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    os::unix::thread,
 };
 
 use chrono::DateTime;
 use reqwest::Client;
-use rustls::client;
-use serde_json::{json, Value};
+use serde_json::json;
+use tracing_log::LogTracer;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use crate::logging::log_type::Log;
@@ -53,13 +52,15 @@ pub fn init_logger(
 
         Ok(guard)
     } else {
-        let filter = EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new("info"))?;
+        LogTracer::init().expect("Failed to set logger");
+
+        // let filter = EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new("info"))?;
 
         let (non_blocking, guard) = tracing_appender::non_blocking(std::io::stdout());
 
         let subscriber = fmt()
+            .with_max_level(tracing::Level::DEBUG)
             .with_thread_names(true)
-            .with_env_filter(filter)
             .with_writer(non_blocking)
             .finish();
 
