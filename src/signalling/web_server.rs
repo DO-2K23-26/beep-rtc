@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::mpsc::SyncSender};
+use std::{collections::HashMap, sync::mpsc::Sender};
 
 use actix_cors::Cors;
 use actix_web::{web::Data, App, HttpServer};
@@ -7,12 +7,13 @@ use tracing::info;
 use crate::{
     signalling::signaling_controller::{handle_offer, health, leave},
     transport::handlers::SignalingMessage,
+    middleware::verify_jwt::verify_token,
 };
 
 pub async fn start(
     addr: &str,
     port: &str,
-    media_port_thread_map: HashMap<u16, SyncSender<SignalingMessage>>,
+    media_port_thread_map: HashMap<u16, Sender<SignalingMessage>>,
 ) -> std::io::Result<()> {
     let addr = format!("{}:{}", addr, port);
 

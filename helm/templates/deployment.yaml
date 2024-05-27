@@ -16,12 +16,12 @@ spec:
     spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      hostNetwork: true
+#      hostNetwork: true
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["./target/release/beep-sfu"]
-          args: ["-d", "--level", "info", "--media-port-min", "{{.Values.image.portUDPmin}}", "--media-port-max", "{{.Values.image.portUDPmax}}", "--host", "162.38.112.138"]
+          args: ["-d", "--level", "info", "--media-port-min", "{{.Values.image.portUDPmin}}", "--media-port-max", "{{.Values.image.portUDPmax}}"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::mpsc::{self, SyncSender},
+    sync::mpsc::{self, Sender},
 };
 
 use actix_web::{
@@ -29,14 +29,14 @@ pub async fn health() -> impl Responder {
 pub async fn handle_offer(
     path: web::Path<(String, String)>,
     offer_sdp: web::Json<RTCSessionDescriptionSerializable>,
-    media_port_thread_map: Data<HashMap<u16, SyncSender<SignalingMessage>>>,
+    media_port_thread_map: Data<HashMap<u16, Sender<SignalingMessage>>>,
 ) -> impl Responder {
     let path = path.into_inner();
     let session_id = u64::from_str_radix(&path.0, 10).unwrap();
     let endpoint_id = u64::from_str_radix(&path.1, 10).unwrap();
     let sorted_ports: Vec<u16> = media_port_thread_map.keys().map(|x| *x).collect();
     let port = sorted_ports[(session_id as usize) % sorted_ports.len()];
-    let (response_tx, response_rx) = mpsc::sync_channel(1);
+    let (response_tx, response_rx) = mpsc::channel();
     let payload_to_string = serde_json::to_string(&offer_sdp).map_err(|e| {
         error!("Error serializing offer: {}", e);
         HttpResponse::InternalServerError().body("Error serializing offer")

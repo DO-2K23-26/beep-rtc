@@ -2,7 +2,7 @@ use std::{
     cell::RefCell,
     io::{Error, ErrorKind},
     rc::Rc,
-    sync::mpsc::SyncSender,
+    sync::mpsc::Sender,
 };
 
 use bytes::Bytes;
@@ -37,7 +37,7 @@ pub enum SignalingProtocolMessage {
 
 pub struct SignalingMessage {
     pub request: SignalingProtocolMessage,
-    pub response_tx: SyncSender<SignalingProtocolMessage>,
+    pub response_tx: Sender<SignalingProtocolMessage>,
 }
 
 pub fn handle_signaling_message(
@@ -99,7 +99,7 @@ fn handle_offer_message(
     session_id: u64,
     endpoint_id: u64,
     offer: Bytes,
-    response_tx: SyncSender<SignalingProtocolMessage>,
+    response_tx: Sender<SignalingProtocolMessage>,
 ) -> std::io::Result<()> {
     let try_handle = || -> std::io::Result<Bytes> {
         let offer_str = match String::from_utf8(offer.to_vec()) {
@@ -164,7 +164,7 @@ fn handle_leave_message(
     _server_states: &Rc<RefCell<ServerStates>>,
     session_id: u64,
     endpoint_id: u64,
-    response_tx: SyncSender<SignalingProtocolMessage>,
+    response_tx: Sender<SignalingProtocolMessage>,
 ) -> std::io::Result<()> {
     let try_handle = || -> std::io::Result<()> {
         info!("handle_leave_message: {}/{}", session_id, endpoint_id,);

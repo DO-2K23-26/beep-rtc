@@ -9,11 +9,11 @@ spec:
       targetPort: {{ .Values.image.portHTTP }}
       protocol: TCP
       name: http
-#    {{- range .Values.ports }}
-#    - port: {{ . }}
-#      targetPort: {{ . }}
-#      protocol: UDP
-#      name: port-{{ . }}
-#    {{- end }}
+    {{- range .Values.ports }}
+    - port: {{ . }}
+      targetPort: {{ . }}
+      protocol: UDP
+      name: port-{{ . }}
+    {{- end }}
   selector:
     {{- include "beep-rtc.selectorLabels" . | nindent 4 }}

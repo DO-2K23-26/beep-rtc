@@ -84,7 +84,7 @@ async fn main() -> std::io::Result<()> {
     let _enter = root.enter();
     tracing::info!("Starting Beep SFU Server");
 
-    let host_addr: IpAddr = IpAddr::from_str("127.0.0.1").map_err(|e| {
+    let host_addr: IpAddr = IpAddr::from_str(&*cli.host).map_err(|e| {
         tracing::error!("Failed to parse host address: {:?}", e);
         std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
     })?;
@@ -140,7 +140,7 @@ async fn main() -> std::io::Result<()> {
     for port in media_ports {
         let worker = wait_group.add(1);
         let stop_rx = stop_rx.clone();
-        let (signaling_tx, signaling_rx) = mpsc::sync_channel(1);
+        let (signaling_tx, signaling_rx) = mpsc::channel();
 
         let socket = UdpSocket::bind(format!("{host_addr}:{port}")).map_err(|e| {
             tracing::error!("Failed to bind udp socket: {:?}", e);
