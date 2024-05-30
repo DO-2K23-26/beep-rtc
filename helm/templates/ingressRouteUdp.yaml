@@ -9,4 +9,4 @@ spec:
   routes:
     - services:
       - name: {{ printf "%s-service" (include "beep-rtc.fullname" $) }}
-        port: 5000
+        port: 5060

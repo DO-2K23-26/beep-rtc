@@ -20,8 +20,8 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["./target/release/beep-sfu"]
-          args: ["-d", "--level", "info", "--media-port-min", "{{.Values.image.portUDPmin}}", "--media-port-max", "{{.Values.image.portUDPmax}}"]
+          command: ["/bin/server"]
+          args: ["-d", "--level", "info", "--media-port-min", "{{.Values.image.portUDPmin}}", "--media-port-max", "{{.Values.image.portUDPmax}}", "--host", "0.0.0.0", "--ip-endpoint", "162.38.112.138"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

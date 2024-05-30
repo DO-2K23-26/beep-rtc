@@ -7,51 +7,51 @@ use chrono::DateTime;
 use reqwest::Client;
 use serde_json::json;
 use tracing_log::LogTracer;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{fmt};
 
 use crate::logging::log_type::Log;
 
-static LOG_FILE: &str = "/var/log/beep-sfu/";
+static LOG_FILE: &str = "./var/beep-sfu/";
 
 mod log_type;
 
 pub fn init_logger(
     env: &str,
 ) -> Result<tracing_appender::non_blocking::WorkerGuard, Box<dyn std::error::Error>> {
-    if env == "prod" {
-        let file_appender = tracing_appender::rolling::hourly(LOG_FILE, "beep-sfu.log");
-
-        let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
-
-        let subscriber = fmt()
-            .json()
-            .with_thread_names(true)
-            .with_writer(non_blocking)
-            .finish();
-
-        //trace with json
-
-        tracing::subscriber::set_global_default(subscriber)?;
-
-        // tracing::subscriber::set_global_default(subscriber)?;
-
-        actix_rt::spawn(async {
-            loop {
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                let _ =
-                    match send_logs_to_loki("http://localhost:3100/loki/api/v1/push".to_string())
-                        .await
-                    {
-                        Ok(_) => (),
-                        Err(e) => {
-                            println!("Failed to send logs to loki: {:?}", e)
-                        }
-                    };
-            }
-        });
-
-        Ok(guard)
-    } else {
+    // if env == "prod" {
+    //     let file_appender = tracing_appender::rolling::hourly(LOG_FILE, "beep-sfu.log");
+    // 
+    //     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+    // 
+    //     let subscriber = fmt()
+    //         .json()
+    //         .with_thread_names(true)
+    //         .with_writer(non_blocking)
+    //         .finish();
+    // 
+    //     //trace with json
+    // 
+    //     tracing::subscriber::set_global_default(subscriber)?;
+    // 
+    //     // tracing::subscriber::set_global_default(subscriber)?;
+    // 
+    //     actix_rt::spawn(async {
+    //         loop {
+    //             tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+    //             let _ =
+    //                 match send_logs_to_loki("http://localhost:3100/loki/api/v1/push".to_string())
+    //                     .await
+    //                 {
+    //                     Ok(_) => (),
+    //                     Err(e) => {
+    //                         println!("Failed to send logs to loki: {:?}", e)
+    //                     }
+    //                 };
+    //         }
+    //     });
+    // 
+    //     Ok(guard)
+    // } else {
         LogTracer::init().expect("Failed to set logger");
 
         // let filter = EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new("info"))?;
@@ -66,7 +66,7 @@ pub fn init_logger(
 
         tracing::subscriber::set_global_default(subscriber)?;
         Ok(guard)
-    }
+    // }
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]

@@ -8,7 +8,7 @@ use sfu::{
 };
 use std::cell::RefCell;
 use std::io::ErrorKind;
-use std::net::{SocketAddr, UdpSocket};
+use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, UdpSocket};
 use std::rc::Rc;
 use std::sync::mpsc::Receiver;
 use std::sync::Arc;
@@ -29,14 +29,15 @@ pub fn sync_run(
     socket: UdpSocket,
     rx: Receiver<SignalingMessage>,
     server_config: Arc<ServerConfig>,
+    server_ip: SocketAddr,
 ) -> std::io::Result<()> {
-    let server_states_config = ServerStates::new(server_config, socket.local_addr()?).unwrap();
+    let server_states_config = ServerStates::new(server_config, server_ip).unwrap();
 
     let server_states = Rc::new(RefCell::new(server_states_config));
 
     info!("listening {}...", socket.local_addr()?);
 
-    let pipeline = build_pipeline(socket.local_addr()?, server_states.clone());
+    let pipeline = build_pipeline(server_ip, server_states.clone());
 
     let mut buf = vec![0; 2000];
 
@@ -77,7 +78,7 @@ pub fn sync_run(
             .set_read_timeout(Some(delay_from_now))
             .expect("setting socket read timeout");
 
-        if let Some(input) = read_socket_input(&socket, &mut buf) {
+        if let Some(input) = read_socket_input(&socket, &mut buf, server_ip) {
             pipeline.read(input);
         }
 
@@ -88,7 +89,7 @@ pub fn sync_run(
 
     info!(
         "media server on {} is gracefully down",
-        socket.local_addr()?
+        server_ip
     );
     Ok(())
 }
@@ -104,13 +105,13 @@ fn write_socket_output(
     Ok(())
 }
 
-fn read_socket_input(socket: &UdpSocket, buf: &mut [u8]) -> Option<TaggedBytesMut> {
+fn read_socket_input(socket: &UdpSocket, buf: &mut [u8], server_ip: SocketAddr) -> Option<TaggedBytesMut> {
     match socket.recv_from(buf) {
         Ok((n, peer_addr)) => {
             return Some(TaggedBytesMut {
                 now: Instant::now(),
                 transport: TransportContext {
-                    local_addr: socket.local_addr().unwrap(),
+                    local_addr: server_ip,
                     peer_addr,
                     ecn: None,
                 },

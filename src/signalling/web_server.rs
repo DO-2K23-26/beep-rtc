@@ -7,7 +7,6 @@ use tracing::info;
 use crate::{
     signalling::signaling_controller::{handle_offer, health, leave},
     transport::handlers::SignalingMessage,
-    middleware::verify_jwt::verify_token,
 };
 
 pub async fn start(

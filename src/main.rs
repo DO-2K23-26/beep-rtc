@@ -8,6 +8,7 @@ use std::{
     str::FromStr,
     sync::{mpsc, Arc},
 };
+use std::net::SocketAddr;
 
 use actix_web::rt::signal;
 use clap::{command, Parser};
@@ -57,6 +58,8 @@ struct Cli {
     dev: bool,
     #[arg(long, default_value_t = format!("127.0.0.1"))]
     host: String,
+    #[arg(long, default_value_t = format!("127.0.0.1"))]
+    ip_endpoint: String,
     #[arg(short, long, default_value_t = 8080)]
     signal_port: u16,
     #[arg(long, default_value_t = 3478)]
@@ -84,7 +87,12 @@ async fn main() -> std::io::Result<()> {
     let _enter = root.enter();
     tracing::info!("Starting Beep SFU Server");
 
-    let host_addr: IpAddr = IpAddr::from_str(&*cli.host).map_err(|e| {
+    let host_addr= IpAddr::from_str(&*cli.host).map_err(|e| {
+        tracing::error!("Failed to parse host address: {:?}", e);
+        std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
+    })?;
+
+    let ip_endpoint = IpAddr::from_str(&*cli.ip_endpoint).map_err(|e| {
         tracing::error!("Failed to parse host address: {:?}", e);
         std::io::Error::new(std::io::ErrorKind::Other, "Failed to parse host address")
     })?;
@@ -146,6 +154,7 @@ async fn main() -> std::io::Result<()> {
             tracing::error!("Failed to bind udp socket: {:?}", e);
             std::io::Error::new(std::io::ErrorKind::Other, "Failed to bind udp socket")
         })?;
+        let socket_endpoint = SocketAddr::new(ip_endpoint, port);
 
         media_port_thread_map.insert(port, signaling_tx);
         let server_config = server_config.clone();
@@ -154,7 +163,7 @@ async fn main() -> std::io::Result<()> {
             //write sfu handler here
             let _span = span!(tracing::Level::INFO, "worker", port = port).entered();
 
-            match sync_run(stop_rx, socket, signaling_rx, server_config) {
+            match sync_run(stop_rx, socket, signaling_rx, server_config, socket_endpoint) {
                 Ok(_) => (),
                 Err(e) => {
                     tracing::error!("Failed to run sfu: {:?}", e);

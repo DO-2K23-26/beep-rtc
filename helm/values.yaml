@@ -4,13 +4,13 @@ imagePullSecrets:
 image:
   repository: gitlab.polytech.umontpellier.fr:5050/beep/front/beep-rtc
   pullPolicy: Always
-  tag: latest
+  tag: 1.0.1
   portHTTP: 8080
   portUDPmin: 5060
   portUDPmax: 5060
 
 service:
-  type: NodePort
+  type: ClusterIP
   port: 80
 
 ingress:
